@@ -47,6 +47,7 @@ cfg_rt_core! {
     }
 }
 
+/// e: 调用自mod中的Runtime.block_on
 /// Set this [`ThreadContext`] as the current active [`ThreadContext`].
 ///
 /// [`ThreadContext`]: struct.ThreadContext.html
@@ -54,6 +55,7 @@ pub(crate) fn enter<F, R>(new: Handle, f: F) -> R
 where
     F: FnOnce() -> R,
 {
+    println!("** DEBUG ** context::enter");
     struct DropGuard(Option<Handle>);
 
     impl Drop for DropGuard {

@@ -410,11 +410,15 @@ cfg_rt_core! {
             self
         }
 
+        // e: Handle 就是 context的物理存储结构.
+        // e: context是一个指针，local thread不同的runtime对象切换时，通过enter切换Handle,由此实现切换context
         fn build_basic_runtime(&mut self) -> io::Result<Runtime> {
             use crate::runtime::{BasicScheduler, Kind};
 
             let clock = time::create_clock();
 
+            // e: driver 是一个两层结构，time driver包含了io driver. 
+            // e: timer不开启，直接使用io driver. 所以io driver也是timer driver的默认实现
             // Create I/O driver
             let (io_driver, io_handle) = io::create_driver(self.enable_io)?;
 

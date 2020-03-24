@@ -412,6 +412,7 @@ impl Runtime {
 
         println!("** DEBUG ** block_on kind: {:?}", kind);
 
+        // e: handle.enter 设置TLS中的context
         self.handle.enter(|| match kind {
             Kind::Shell(exec) => exec.block_on(future),
             #[cfg(feature = "rt-core")]
