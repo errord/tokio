@@ -410,6 +410,8 @@ impl Runtime {
     pub fn block_on<F: Future>(&mut self, future: F) -> F::Output {
         let kind = &mut self.kind;
 
+        println!("** DEBUG ** block_on kind: {:?}", kind);
+
         self.handle.enter(|| match kind {
             Kind::Shell(exec) => exec.block_on(future),
             #[cfg(feature = "rt-core")]

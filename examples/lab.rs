@@ -24,24 +24,45 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::stream::StreamExt;
 use tokio_util::codec::{Decoder, Encoder, Framed};
 
-#[tokio::main]
+#[tokio::main(basic_scheduler)]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Parse the arguments, bind the TCP socket we'll be listening to, spin up
     // our worker threads, and start shipping sockets to those worker threads.
     let addr = env::args()
         .nth(1)
         .unwrap_or_else(|| "127.0.0.1:8080".to_string());
+    println!("TcpListener::bind(&addr).await? start");
     let mut server = TcpListener::bind(&addr).await?;
+    println!("TcpListener::bind(&addr).await? exit");
+
     let mut incoming = server.incoming();
     println!("Listening on: {}", addr);
 
+    println!("while incoming.next().await start");
+
+    println!("main delay time start");
+    let s = std::time::Instant::now();
+    tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(10_000)).await;
+    println!("main delay stop time: {:?}", std::time::Instant::now() - s);
+
     while let Some(Ok(stream)) = incoming.next().await {
+        println!("incoming.next().await has stream");
         tokio::spawn(async move {
+            println!("process(stream).await start");
             if let Err(e) = process(stream).await {
+                println!("process(stream).await Err");
                 println!("failed to process connection; error = {}", e);
             }
+            println!("process(stream).await exit");
         });
+        println!("tokio::spawn process incoming stream done");
+
+        println!("incoming loop delay time start");
+        let s = std::time::Instant::now();
+        tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(10_000)).await;
+        println!("incoming loop delay stop time: {:?}", std::time::Instant::now() - s);
     }
+    println!("while incoming.next().await exit");
 
     Ok(())
 }
@@ -49,15 +70,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn process(stream: TcpStream) -> Result<(), Box<dyn Error>> {
     let mut transport = Framed::new(stream, Http);
 
+    println!("loop transport.next().await start");
     while let Some(request) = transport.next().await {
         match request {
             Ok(request) => {
+                println!("respond(request).await? start");
                 let response = respond(request).await?;
+                println!("respond(request).await? end");
+
+                // println!("process delay time start");
+                // let s = std::time::Instant::now();
+                // tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(75_000)).await;
+                // println!("process delay stop time: {:?}", std::time::Instant::now() - s);
+
+                println!("process sleep time start");
+                let s = std::time::Instant::now();
+                std::thread::sleep(std::time::Duration::from_millis(75_000));
+                println!("process sleep stop time: {:?}", std::time::Instant::now() - s);
+                
+                println!("transport.send(response).await? start");
                 transport.send(response).await?;
+                println!("transport.send(response).await? end");
             }
             Err(e) => return Err(e.into()),
         }
     }
+    println!("loop transport.next().await exit");
 
     Ok(())
 }
