@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("main delay time start");
     let s = std::time::Instant::now();
-    tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(10_000)).await;
+    tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(1_000)).await;
     println!("main delay stop time: {:?}", std::time::Instant::now() - s);
 
     while let Some(Ok(stream)) = incoming.next().await {
@@ -59,7 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         println!("incoming loop delay time start");
         let s = std::time::Instant::now();
-        tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(10_000)).await;
+        tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(1_000)).await;
         println!("incoming loop delay stop time: {:?}", std::time::Instant::now() - s);
     }
     println!("while incoming.next().await exit");
@@ -85,7 +85,7 @@ async fn process(stream: TcpStream) -> Result<(), Box<dyn Error>> {
 
                 println!("process sleep time start");
                 let s = std::time::Instant::now();
-                std::thread::sleep(std::time::Duration::from_millis(75_000));
+                std::thread::sleep(std::time::Duration::from_millis(5_000));
                 println!("process sleep stop time: {:?}", std::time::Instant::now() - s);
                 
                 println!("transport.send(response).await? start");

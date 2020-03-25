@@ -333,6 +333,7 @@ impl Inner {
         self.elapsed.load(SeqCst)
     }
 
+    // e: 使用CAS实现lock-free的增加操作
     /// Increments the number of active timeouts
     fn increment(&self) -> Result<(), Error> {
         let mut curr = self.num.load(SeqCst);

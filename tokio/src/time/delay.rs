@@ -5,6 +5,11 @@ use std::future::Future;
 use std::pin::Pin;
 use std::task::{self, Poll};
 
+/// e: Delay是一个future
+/// e: Registration::new会把Delay任务加入到Runtime的time相关功能处理队列
+/// e: 在等待Delay完成时不执行任何工作。Delay以毫秒粒度运行，和task混合运行，Delay不会那么精确，
+///    所以不应用于需要高分辨率计时器的任务。
+/// 
 /// Waits until `deadline` is reached.
 ///
 /// No work is performed while awaiting on the delay to complete. The delay

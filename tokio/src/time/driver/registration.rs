@@ -15,6 +15,7 @@ pub(crate) struct Registration {
 
 impl Registration {
     pub(crate) fn new(deadline: Instant, duration: Duration) -> Registration {
+        // e: 从TLS中取出当前Runtime的Handle(Context).
         let handle = Handle::current();
 
         Registration {

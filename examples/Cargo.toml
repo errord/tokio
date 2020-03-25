@@ -64,3 +64,6 @@ path = "tinyhttp.rs"
 name = "lab"
 path = "lab.rs"
 
+[[example]]
+name = "lab_time"
+path = "lab_time.rs"

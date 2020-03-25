@@ -140,7 +140,8 @@ where
                     let tick = scheduler.tick;
                     scheduler.tick = scheduler.tick.wrapping_add(1);
 
-                    println!("** DEBUG ** \ttasks 'tick loop' on {}, tick: {}", i, tick);
+                    println!("** DEBUG ** \ttasks 'tick loop' on {}, tick: {} scheduler len: {} context.task len: {}", 
+                        i, tick, scheduler.spawner.len(), context.tasks.borrow().queue.len());
 
                     let next = if tick % REMOTE_FIRST_INTERVAL == 0 {
                         println!("** DEBUG ** \tget scheduler spawner task");
@@ -286,6 +287,11 @@ impl Spawner {
 
     fn pop(&self) -> Option<task::Notified<Arc<Shared>>> {
         self.shared.queue.lock().unwrap().pop_front()
+    }
+
+    // e: add len method
+    fn len(&self) -> usize {
+        self.shared.queue.lock().unwrap().len()
     }
 }
 

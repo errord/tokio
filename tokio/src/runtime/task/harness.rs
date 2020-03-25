@@ -254,6 +254,7 @@ where
         self.drop_reference();
     }
 
+    // ***e: wake call schedule task, task to runtime run queue
     pub(super) fn wake_by_ref(&self) {
         if self.header().state.transition_to_notified() {
             self.core().schedule(Notified(self.to_task()));

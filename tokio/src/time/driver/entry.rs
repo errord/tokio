@@ -105,6 +105,8 @@ const ERROR: u64 = u64::MAX;
 
 impl Entry {
     pub(crate) fn new(handle: &Handle, deadline: Instant, duration: Duration) -> Arc<Entry> {
+        // e: inner被多个地方共享，Driver`, `Handle`, and `Registration`.
+        // e: "inner.queue(&entry)"相当于Delay加入Runtime的time队列
         let inner = handle.inner().unwrap();
         let entry: Entry;
 
