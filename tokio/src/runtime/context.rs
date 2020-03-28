@@ -55,7 +55,7 @@ pub(crate) fn enter<F, R>(new: Handle, f: F) -> R
 where
     F: FnOnce() -> R,
 {
-    println!("** DEBUG ** context::enter");
+    debug!("context::enter");
     struct DropGuard(Option<Handle>);
 
     impl Drop for DropGuard {

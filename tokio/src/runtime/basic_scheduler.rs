@@ -4,6 +4,7 @@ use crate::runtime::task::{self, JoinHandle, Schedule, Task};
 use crate::util::linked_list::LinkedList;
 use crate::util::{waker_ref, Wake};
 
+
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::fmt;
@@ -11,6 +12,7 @@ use std::future::Future;
 use std::sync::{Arc, Mutex};
 use std::task::Poll::Ready;
 use std::time::Duration;
+
 
 /// Executes tasks on the current thread
 pub(crate) struct BasicScheduler<P>
@@ -128,30 +130,30 @@ where
             pin!(future);
 
             'outer: loop {
-                println!("** DEBUG ** enter block_on 'main loop', future poll");
+                debug!("enter block_on 'main loop', future poll");
                 if let Ready(v) = crate::coop::budget(|| future.as_mut().poll(&mut cx)) {
-                    println!("** DEBUG ** exit block_on loop, future reday");
+                    debug!("exit block_on loop, future reday");
                     return v;
                 }
-                println!("** DEBUG ** block_on 'main loop', future pending");
+                debug!("block_on 'main loop', future pending");
 
                 for i in 0..MAX_TASKS_PER_TICK {
                     // Get and increment the current tick
                     let tick = scheduler.tick;
                     scheduler.tick = scheduler.tick.wrapping_add(1);
 
-                    println!("** DEBUG ** \ttasks 'tick loop' on {}, tick: {} scheduler len: {} context.task len: {}", 
+                    debug!("\ttasks 'tick loop' on {}, tick: {} scheduler len: {} context.task len: {}", 
                         i, tick, scheduler.spawner.len(), context.tasks.borrow().queue.len());
 
                     let next = if tick % REMOTE_FIRST_INTERVAL == 0 {
-                        println!("** DEBUG ** \tget scheduler spawner task");
+                        debug!("\tget scheduler spawner task");
 
                         scheduler
                             .spawner
                             .pop()
                             .or_else(|| context.tasks.borrow_mut().queue.pop_front())
                     } else {
-                        println!("** DEBUG ** \tget context spawner task");
+                        debug!("\tget context spawner task");
 
                         context
                             .tasks
@@ -161,19 +163,19 @@ where
                             .or_else(|| scheduler.spawner.pop())
                     };
 
-                    println!("** DEBUG ** \ttask is {:?}", next);
+                    debug!("\ttask is {:?}", next);
 
                     match next {
                         Some(task) => {
-                            println!("** DEBUG ** \ttask run start");
+                            debug!("\ttask run start");
                             task.run();
-                            println!("** DEBUG ** \ttask run exit");
+                            debug!("\ttask run exit");
                         },
                         None => {
-                            println!("** DEBUG ** \tscheduler.park start");
+                            debug!("\tscheduler.park start");
                             // Park until the thread is signaled
                             scheduler.park.park().ok().expect("failed to park");
-                            println!("** DEBUG ** \tscheduler.park exit");
+                            debug!("\tscheduler.park exit");
 
                             // Try polling the `block_on` future next
                             continue 'outer;
@@ -181,7 +183,7 @@ where
                     }
                 }
 
-                println!("** DEBUG ** exit block_on 'main loop'");
+                debug!("exit block_on 'main loop'");
 
                 // Yield to the park, this drives the timer and pulls any pending
                 // I/O events.

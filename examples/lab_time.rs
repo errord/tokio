@@ -12,12 +12,23 @@
 //! available, and it doesn't support HTTP request bodies.
 
 #![warn(rust_2018_idioms)]
+#![feature(rustc_private)]
 
-use std::{env, error::Error, fmt, io};
 
-#[tokio::main(basic_scheduler)]
-//#[tokio::main(threaded_scheduler)]
+#[macro_use]
+extern crate log;
+
+use std::{error::Error};
+
+//#[tokio::main(basic_scheduler)]
+#[tokio::main(threaded_scheduler)]
 async fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::init();
+    debug!("test");
+    time_task_lab().await
+}
+
+async fn base_lab() -> Result<(), Box<dyn Error>> {
     for i in 0..10 {
         println!("tokio::spawn start");
         tokio::spawn(async move {
@@ -46,5 +57,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // println!("process sleep delay stop time: {:?}", std::time::Instant::now() - s);
 
     tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(15_000)).await;
+    Ok(())
+}
+
+
+async fn time_task_lab() -> Result<(), Box<dyn Error>> {
+    for i in 0..10000 {
+        println!("tokio::spawn start");
+        tokio::spawn(async move {
+            let s = tokio::time::Instant::now();
+            //let dur = tokio::time::Duration::from_millis(1_000 + i * 10);
+            let dur = tokio::time::Duration::from_millis(100);
+            println!("process delay time: {:?} start", dur);
+            let stop = s + dur;
+            tokio::time::delay_until(
+                stop).await;
+            println!("process delay stop time: {:?} real: {:?}", stop.duration_since(s), s.elapsed());
+            //std::thread::sleep(std::time::Duration::from_millis(1));
+        });
+        println!("tokio::spawn start exit");
+    }
+
+    tokio::time::delay_until(tokio::time::Instant::now() + tokio::time::Duration::from_millis(2_000_000)).await;
     Ok(())
 }

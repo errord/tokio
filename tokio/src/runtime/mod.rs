@@ -410,7 +410,7 @@ impl Runtime {
     pub fn block_on<F: Future>(&mut self, future: F) -> F::Output {
         let kind = &mut self.kind;
 
-        println!("** DEBUG ** block_on kind: {:?}", kind);
+        debug!("block_on kind: {:?}", kind);
 
         // e: handle.enter 设置TLS中的context
         self.handle.enter(|| match kind {
