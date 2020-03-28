@@ -23,12 +23,18 @@ doc_rt_core! {
             type Output = ();
 
             fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+                debug!("yield_now entry");
                 if self.yielded {
+                    debug!("yield_now ready exit");
                     return Poll::Ready(());
                 }
 
                 self.yielded = true;
+                // e: 重新执行，如不加则yield_now这个task不会被执行了
+                // e: 1. context为scheduler(即main future)则立即执行,后面的task不会执行了
+                // e: 2. context为task，重新放入task queue尾部，还能执行一轮就绪的task
                 cx.waker().wake_by_ref();
+                debug!("yield_now pending exit");
                 Poll::Pending
             }
         }

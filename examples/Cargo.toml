@@ -70,3 +70,7 @@ path = "lab.rs"
 name = "lab_time"
 path = "lab_time.rs"
 
+[[example]]
+name = "lab_block_task"
+path = "lab_block_task.rs"
+
