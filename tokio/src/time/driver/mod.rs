@@ -174,6 +174,7 @@ where
     /// This handles adding and canceling timeouts.
     fn process_queue(&mut self) {
         for entry in self.inner.process.take() {
+            debug!("process_queue: {:?} match start", (entry.when_internal(), entry.load_state()));
             match (entry.when_internal(), entry.load_state()) {
                 (None, None) => {
                     // Nothing to do
@@ -184,13 +185,16 @@ where
                 }
                 (None, Some(when)) => {
                     // Queue the entry
+                    debug!("process_queue add_entry start");
                     self.add_entry(entry, when);
+                    debug!("process_queue add_entry end");
                 }
                 (Some(_), Some(next)) => {
                     self.clear_entry(&entry);
                     self.add_entry(entry, next);
                 }
             }
+            debug!("process_queue match done");
         }
     }
 
@@ -216,6 +220,7 @@ where
                 entry.fire(when);
             }
             Err((entry, InsertError::Invalid)) => {
+                error!("add_entry::wheel.insert error");
                 // The entry's deadline is invalid, so error it and update the
                 // internal state accordingly.
                 entry.set_when_internal(None);
@@ -333,7 +338,7 @@ impl Inner {
         self.elapsed.load(SeqCst)
     }
 
-    // e: 使用CAS实现lock-free的增加操作
+    // e: 使用CAS实现lock-free
     /// Increments the number of active timeouts
     fn increment(&self) -> Result<(), Error> {
         let mut curr = self.num.load(SeqCst);

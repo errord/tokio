@@ -63,7 +63,7 @@ async fn base_lab() -> Result<(), Box<dyn Error>> {
 async fn time_task_lab() -> Result<(), Box<dyn Error>> {
     println!("time_task_lab entry");
 
-    let t = 10000;
+    let t = 10;
     let c = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(t));
 
     tokio::spawn(async move {
@@ -78,7 +78,9 @@ async fn time_task_lab() -> Result<(), Box<dyn Error>> {
         tokio::spawn(async move {
             let s = tokio::time::Instant::now();
             //let dur = tokio::time::Duration::from_millis(1_000 + i * 10);
-            let dur = tokio::time::Duration::from_millis(10_000);
+            let dur = tokio::time::Duration::from_millis(399102635_000);
+            // max 2 year
+            //let dur = tokio::time::Duration::from_millis(63072000_000);
             println!("process delay time: {:?} start", dur);
             let stop = s + dur;
             tokio::time::delay_until(

@@ -116,9 +116,12 @@ impl Iterator for AtomicStackEntries {
 
 impl Drop for AtomicStackEntries {
     fn drop(&mut self) {
+        debug!("AtomicStackEntries Drop start");
         for entry in self {
+            debug!("AtomicStackEntries Drop {:?}", entry);
             // Flag the entry as errored
             entry.error();
         }
+        debug!("AtomicStackEntries Drop end")
     }
 }

@@ -105,6 +105,7 @@ where
         if when <= self.elapsed {
             return Err((item, InsertError::Elapsed));
         } else if when - self.elapsed > MAX_DURATION {
+            error!("wheel::insert when({:?}) - self.elapsed({:?}) > MAX_DURATION({:?})", when, self.elapsed, MAX_DURATION);
             return Err((item, InsertError::Invalid));
         }
 

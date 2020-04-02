@@ -112,8 +112,10 @@ impl Entry {
 
         // Increment the number of active timeouts
         if inner.increment().is_err() {
+            error!("Entry::new increment is err");
             entry = Entry::new2(deadline, duration, Weak::new(), ERROR)
         } else {
+            debug!("Entry::new increment is ok");
             let when = inner.normalize_deadline(deadline);
             let state = if when <= inner.elapsed() {
                 ELAPSED
@@ -125,9 +127,10 @@ impl Entry {
 
         let entry = Arc::new(entry);
         if inner.queue(&entry).is_err() {
+            error!("Entry::new inner.queue is err");
             entry.error();
         }
-
+        debug!("entry: {:?} u64:max: {:?}", entry, u64::MAX);
         entry
     }
 
@@ -195,6 +198,7 @@ impl Entry {
         // Only transition to the error state if not currently elapsed
         let mut curr = self.state.load(SeqCst);
 
+        error!("entry::error curr: {:?}", curr);
         loop {
             if is_elapsed(curr) {
                 return;
